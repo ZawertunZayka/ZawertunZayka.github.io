@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Globalizacja - szansa czy zagrożenie?</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Globalizacja - szansa czy zagrożenie?</h1>
+        <p>Projekt WOS - [Twoje Imię i Nazwisko], Klasa [Twoja Klasa]</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#co-to">Co to jest globalizacja?</a></li>
+            <li><a href="#szanse">Szanse</a></li>
+            <li><a href="#zagrozenia">Zagrożenia</a></li>
+            <li><a href="#podsumowanie">Podsumowanie</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="co-to">
+            <h2>Co to jest globalizacja?</h2>
+            <img src="images/globalization.jpg" alt="Globalizacja - ilustracja" class="float-right">
+            <p>Globalizacja to proces integracji międzynarodowej, wynikający z wymiany światowych poglądów, produktów, idei i innych aspektów kultury. Postęp w transporcie i telekomunikacji, w tym pojawienie się Internetu, jest jednym z głównych czynników globalizacji, generując dalszą współzależność aktywności gospodarczej i kulturowej.</p>
+            <p>Globalizacja ma wiele wymiarów, w tym ekonomiczny, polityczny, kulturowy, ekologiczny i społeczny.</p>
+        </section>
+
+        <section id="szanse">
+            <h2>Szanse wynikające z globalizacji</h2>
+            <div class="pros-cons">
+                <div class="pro">
+                    <h3>Korzyści ekonomiczne</h3>
+                    <ul>
+                        <li>Wzrost handlu międzynarodowego</li>
+                        <li>Dostęp do większych rynków</li>
+                        <li>Niższe ceny dla konsumentów</li>
+                        <li>Transfer technologii i know-how</li>
+                    </ul>
+                </div>
+                <div class="pro">
+                    <h3>Korzyści społeczne i kulturowe</h3>
+                    <ul>
+                        <li>Wymiana kulturowa i większa tolerancja</li>
+                        <li>Dostęp do informacji i edukacji</li>
+                        <li>Możliwość migracji i pracy za granicą</li>
+                        <li>Szybsza reakcja na globalne problemy (np. pandemie)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="zagrozenia">
+            <h2>Zagrożenia związane z globalizacją</h2>
+            <div class="pros-cons">
+                <div class="con">
+                    <h3>Problemy ekonomiczne</h3>
+                    <ul>
+                        <li>Nierówności między krajami rozwiniętymi a rozwijającymi się</li>
+                        <li>Utrata miejsc pracy w niektórych sektorach</li>
+                        <li>Dominacja korporacji międzynarodowych</li>
+                        <li>Niestabilność finansowa</li>
+                    </ul>
+                </div>
+                <div class="con">
+                    <h3>Problemy społeczne i kulturowe</h3>
+                    <ul>
+                        <li>Utrata tożsamości kulturowej</li>
+                        <li>Homogenizacja kultury</li>
+                        <li>Zagrożenia dla języków mniejszościowych</li>
+                        <li>Presja migracyjna</li>
+                    </ul>
+                </div>
+            </div>
+            <img src="images/pros-cons.jpg" alt="Zalety i wady globalizacji" class="full-width">
+        </section>
+
+        <section id="podsumowanie">
+            <h2>Podsumowanie</h2>
+            <p>Globalizacja jest złożonym procesem, który niesie ze sobą zarówno szanse, jak i zagrożenia. Kluczem jest znalezienie równowagi między korzyściami ekonomicznymi a ochroną lokalnych kultur i środowiska naturalnego.</p>
+            <p>W mojej opinii, globalizacja jest przede wszystkim szansą, ale wymaga rozsądnego zarządzania i międzynarodowej współpracy, aby minimalizować jej negatywne skutki.</p>
+            
+            <div class="quiz">
+                <h3>Quiz: Co wiesz o globalizacji?</h3>
+                <form id="globalization-quiz">
+                    <div class="question">
+                        <p>1. Który z poniższych elementów NIE jest uważany za czynnik globalizacji?</p>
+                        <label><input type="radio" name="q1" value="a"> Rozwój transportu lotniczego</label>
+                        <label><input type="radio" name="q1" value="b"> Internet</label>
+                        <label><input type="radio" name="q1" value="c"> Lokalne targi rolnicze</label>
+                    </div>
+                    
+                    <div class="question">
+                        <p>2. Które z poniższych jest często wymieniane jako negatywny efekt globalizacji?</p>
+                        <label><input type="radio" name="q2" value="a"> Wzrost handlu międzynarodowego</label>
+                        <label><input type="radio" name="q2" value="b"> Utrata miejsc pracy w przemyśle</label>
+                        <label><input type="radio" name="q2" value="c"> Większa wymiana kulturalna</label>
+                    </div>
+                    
+                    <button type="button" onclick="checkQuiz()">Sprawdź odpowiedzi</button>
+                </form>
+                <div id="quiz-result"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Projekt wykonany na zajęcia WOS | Szkoła w Polsce | © 2023</p>
+        <p>Źródła: [Tutaj wymień źródła, z których korzystałeś]</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
