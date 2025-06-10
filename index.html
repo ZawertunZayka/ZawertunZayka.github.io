@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 20px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ffff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .balance {
+            font-size: 20px;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: transparent;
+            color: #888;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #00ffff, #0088ff);
+            color: #000;
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .game-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .game-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slot-machine {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slot-machine::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .reels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .reel {
+            width: 70px;
+            height: 70px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .reel.spinning {
+            animation: spin 1s ease-in-out;
+        }
+
+        @keyframes spin {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .play-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #00ffff, #0088ff);
+            color: #000;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .play-btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .shop-item {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .shop-item:hover {
+            border-color: #00ffff;
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .shop-item h3 {
+            color: #00ffff;
+            margin-bottom: 10px;
+        }
+
+        .shop-item p {
+            color: #ccc;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .buy-btn {
+            background: linear-gradient(45deg, #00ff88, #00ffff);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .buy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .buy-btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .upgrade-item {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 136, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .upgrade-item h3 {
+            color: #ff8800;
+            margin-bottom: 10px;
+        }
+
+        .level-info {
+            color: #00ffff;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .upgrade-btn {
+            background: linear-gradient(45deg, #ff8800, #ffaa00);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideDown 0.5s ease;
+        }
+
+        .message.win {
+            background: linear-gradient(45deg, #00ff88, #00ffff);
+            color: #000;
+        }
+
+        .message.lose {
+            background: linear-gradient(45deg, #ff4444, #ff6666);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100%); }
+            to { transform: translateX(-50%) translateY(0); }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🎰 NEON CASINO</div>
+            <div class="balance">💰 Баланс: <span id="balance">100</span> монет</div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('game')">🎰 Игра</button>
+            <button class="tab" onclick="switchTab('shop')">🛒 Магазин</button>
+            <button class="tab" onclick="switchTab('upgrades')">⚡ Улучшения</button>
+        </div>
+
+        <div id="game" class="game-section active">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="gamesPlayed">0</div>
+                    <div class="stat-label">Игр сыграно</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalWon">0</div>
+                    <div class="stat-label">Всего выиграно</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="winRate">0%</div>
+                    <div class="stat-label">Процент побед</div>
+                </div>
+            </div>
+
+            <div class="slot-machine">
+                <div class="reels">
+                    <div class="reel" id="reel1">🎰</div>
+                    <div class="reel" id="reel2">🎰</div>
+                    <div class="reel" id="reel3">🎰</div>
+                </div>
+                <button class="play-btn" id="playBtn" onclick="playGame()">
+                    ИГРАТЬ (10 монет)
+                </button>
+            </div>
+        </div>
+
+        <div id="shop" class="game-section">
+            <div class="shop-item">
+                <h3>💎 Стартовый бонус</h3>
+                <p>Получите 500 монет для успешного старта!</p>
+                <button class="buy-btn" onclick="buyItem('starter', 0)">ПОЛУЧИТЬ БЕСПЛАТНО</button>
+            </div>
+            <div class="shop-item">
+                <h3>🎁 Ежедневный бонус</h3>
+                <p>Получайте 100 монет каждые 24 часа</p>
+                <button class="buy-btn" id="dailyBtn" onclick="claimDaily()">ПОЛУЧИТЬ</button>
+            </div>
+            <div class="shop-item">
+                <h3>💰 Малый пакет монет</h3>
+                <p>250 монет за просмотр рекламы</p>
+                <button class="buy-btn" onclick="buyItem('small', 0)">ПОСМОТРЕТЬ РЕКЛАМУ</button>
+            </div>
+            <div class="shop-item">
+                <h3>💰 Большой пакет монет</h3>
+                <p>1000 монет</p>
+                <button class="buy-btn" onclick="buyItem('big', 50)">КУПИТЬ (50 монет)</button>
+            </div>
+        </div>
+
+        <div id="upgrades" class="game-section">
+            <div class="upgrade-item">
+                <h3>🍀 Удача</h3>
+                <div class="level-info">Уровень: <span id="luckLevel">1</span>/10</div>
+                <p>Увеличивает шанс выигрыша на 5% за уровень</p>
+                <button class="upgrade-btn" onclick="upgradeSkill('luck')">
+                    УЛУЧШИТЬ (<span id="luckCost">100</span> монет)
+                </button>
+            </div>
+            <div class="upgrade-item">
+                <h3>💰 Жадность</h3>
+                <div class="level-info">Уровень: <span id="greedLevel">1</span>/10</div>
+                <p>Увеличивает выигрыш на 10% за уровень</p>
+                <button class="upgrade-btn" onclick="upgradeSkill('greed')">
+                    УЛУЧШИТЬ (<span id="greedCost">150</span> монет)
+                </button>
+            </div>
+            <div class="upgrade-item">
+                <h3>⚡ Скорость</h3>
+                <div class="level-info">Уровень: <span id="speedLevel">1</span>/5</div>
+                <p>Уменьшает время анимации на 20% за уровень</p>
+                <button class="upgrade-btn" onclick="upgradeSkill('speed')">
+                    УЛУЧШИТЬ (<span id="speedCost">200</span> монет)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameData = {
+            balance: 100,
+            gamesPlayed: 0,
+            totalWon: 0,
+            wins: 0,
+            luck: 1,
+            greed: 1,
+            speed: 1,
+            lastDaily: 0,
+            starterClaimed: false
+        };
+
+        const symbols = ['🎰', '💎', '🍒', '🍋', '🔔', '⭐', '7️⃣'];
+
+        // Инициализация Telegram WebApp
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+
+        // Получение данных пользователя
+        const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+        const userId = tgUser?.id || 'demo_user';
+
+        async function loadGameData() {
+            try {
+                const response = await fetch(`/api/user/${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    gameData = { ...gameData, ...data };
+                }
+            } catch (error) {
+                console.log('Загружены локальные данные');
+            }
+            updateUI();
+        }
+
+        async function saveGameData() {
+            try {
+                await fetch('/api/user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, ...gameData })
+                });
+            } catch (error) {
+                console.log('Данные сохранены локально');
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('balance').textContent = gameData.balance;
+            document.getElementById('gamesPlayed').textContent = gameData.gamesPlayed;
+            document.getElementById('totalWon').textContent = gameData.totalWon;
+            document.getElementById('winRate').textContent =
+                gameData.gamesPlayed > 0 ? Math.round((gameData.wins / gameData.gamesPlayed) * 100) + '%' : '0%';
+
+            document.getElementById('luckLevel').textContent = gameData.luck;
+            document.getElementById('greedLevel').textContent = gameData.greed;
+            document.getElementById('speedLevel').textContent = gameData.speed;
+
+            document.getElementById('luckCost').textContent = gameData.luck * 100;
+            document.getElementById('greedCost').textContent = gameData.greed * 150;
+            document.getElementById('speedCost').textContent = gameData.speed * 200;
+
+            document.getElementById('playBtn').disabled = gameData.balance < 10;
+
+            updateDailyButton();
+        }
+
+        function updateDailyButton() {
+            const dailyBtn = document.getElementById('dailyBtn');
+            const now = Date.now();
+            const timeSinceDaily = now - gameData.lastDaily;
+            const hoursLeft = Math.max(0, 24 - Math.floor(timeSinceDaily / (1000 * 60 * 60)));
+
+            if (hoursLeft > 0) {
+                dailyBtn.textContent = `ЖДИТЕ ${hoursLeft}ч`;
+                dailyBtn.disabled = true;
+            } else {
+                dailyBtn.textContent = 'ПОЛУЧИТЬ';
+                dailyBtn.disabled = false;
+            }
+        }
+
+        async function playGame() {
+            if (gameData.balance < 10) return;
+
+            gameData.balance -= 10;
+            gameData.gamesPlayed++;
+
+            const playBtn = document.getElementById('playBtn');
+            playBtn.disabled = true;
+
+            // Анимация барабанов
+            const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+            reels.forEach(reel => {
+                reel.classList.add('spinning');
+                reel.textContent = '🎰';
+            });
+
+            const animationTime = Math.max(500, 1500 - (gameData.speed - 1) * 200);
+
+            setTimeout(() => {
+                const results = [];
+                reels.forEach((reel, index) => {
+                    const symbol = symbols[Math.floor(Math.random() * symbols.length)];
+                    results.push(symbol);
+                    reel.textContent = symbol;
+                    reel.classList.remove('spinning');
+                });
+
+                // Логика выигрыша с учетом удачи
+                const luckBonus = (gameData.luck - 1) * 5;
+                const baseChance = 30;
+                const winChance = Math.min(85, baseChance + luckBonus);
+
+                let winAmount = 0;
+                const rand = Math.random() * 100;
+
+                if (results[0] === results[1] && results[1] === results[2]) {
+                    // Джекпот
+                    winAmount = Math.floor((200 + Math.random() * 300) * (1 + (gameData.greed - 1) * 0.1));
+                    showMessage(`🎉 ДЖЕКПОТ! +${winAmount} монет!`, 'win');
+                } else if (rand < winChance) {
+                    // Обычный выигрыш
+                    const prizes = [20, 50, 100];
+                    winAmount = Math.floor(prizes[Math.floor(Math.random() * prizes.length)] * (1 + (gameData.greed - 1) * 0.1));
+                    showMessage(`🎉 Выигрыш! +${winAmount} монет!`, 'win');
+                } else {
+                    showMessage('💔 Неудача! Попробуйте еще!', 'lose');
+                }
+
+                if (winAmount > 0) {
+                    gameData.balance += winAmount;
+                    gameData.totalWon += winAmount;
+                    gameData.wins++;
+                }
+
+                updateUI();
+                saveGameData();
+                playBtn.disabled = gameData.balance < 10;
+            }, animationTime);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.game-section').forEach(section => section.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function buyItem(type, cost) {
+            if (cost > 0 && gameData.balance < cost) {
+                showMessage('Недостаточно монет!', 'lose');
+                return;
+            }
+
+            let reward = 0;
+            switch(type) {
+                case 'starter':
+                    if (!gameData.starterClaimed) {
+                        reward = 500;
+                        gameData.starterClaimed = true;
+                        event.target.textContent = 'ПОЛУЧЕНО';
+                        event.target.disabled = true;
+                    }
+                    break;
+                case 'small':
+                    reward = 250;
+                    break;
+                case 'big':
+                    reward = 1000;
+                    gameData.balance -= cost;
+                    break;
+            }
+
+            if (reward > 0) {
+                gameData.balance += reward;
+                showMessage(`🎁 Получено ${reward} монет!`, 'win');
+                updateUI();
+                saveGameData();
+            }
+        }
+
+        function claimDaily() {
+            const now = Date.now();
+            const timeSinceDaily = now - gameData.lastDaily;
+
+            if (timeSinceDaily >= 24 * 60 * 60 * 1000) {
+                gameData.balance += 100;
+                gameData.lastDaily = now;
+                showMessage('🎁 Ежедневный бонус получен! +100 монет!', 'win');
+                updateUI();
+                saveGameData();
+            }
+        }
+
+        function upgradeSkill(skill) {
+            const costs = {
+                luck: gameData.luck * 100,
+                greed: gameData.greed * 150,
+                speed: gameData.speed * 200
+            };
+
+            const maxLevels = { luck: 10, greed: 10, speed: 5 };
+
+            if (gameData[skill] >= maxLevels[skill]) {
+                showMessage('Максимальный уровень!', 'lose');
+                return;
+            }
+
+            if (gameData.balance < costs[skill]) {
+                showMessage('Недостаточно монет!', 'lose');
+                return;
+            }
+
+            gameData.balance -= costs[skill];
+            gameData[skill]++;
+
+            showMessage(`${skill === 'luck' ? '🍀' : skill === 'greed' ? '💰' : '⚡'} Улучшение куплено!`, 'win');
+            updateUI();
+            saveGameData();
+        }
+
+        function showMessage(text, type) {
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            document.body.appendChild(message);
+
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }
+
+        // Инициализация
+        loadGameData();
+        setInterval(updateDailyButton, 60000);
+    </script>
+</body>
+</html>
