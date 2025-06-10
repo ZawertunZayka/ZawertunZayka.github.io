@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casino Game</title>
+    <title>Casino Roulette</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -93,7 +93,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .slot-machine {
+        .roulette-container {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 20px;
             padding: 30px 20px;
@@ -103,7 +103,7 @@
             overflow: hidden;
         }
 
-        .slot-machine::before {
+        .roulette-container::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -118,39 +118,99 @@
             to { transform: rotate(360deg); }
         }
 
-        .reels {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
+        .roulette-wheel {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            border: 3px solid #00ffff;
+            background: conic-gradient(
+                #ff4444 0deg 36deg,
+                #00ff88 36deg 72deg,
+                #ff4444 72deg 108deg,
+                #00ff88 108deg 144deg,
+                #ff4444 144deg 180deg,
+                #00ff88 180deg 216deg,
+                #ff4444 216deg 252deg,
+                #00ff88 252deg 288deg,
+                #ff4444 288deg 324deg,
+                #00ff88 324deg 360deg
+            );
+            z-index: 1;
+            transition: transform 2s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        .roulette-wheel::after {
+            content: '▼';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00ffff;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .wheel-numbers {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+        }
+
+        .wheel-number {
+            position: absolute;
+            color: #fff;
+            font-weight: bold;
+            font-size: 12px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+
+        .bet-section {
+            margin-bottom: 20px;
             position: relative;
             z-index: 1;
         }
 
-        .reel {
-            width: 70px;
-            height: 70px;
+        .bet-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .bet-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .bet-btn {
+            padding: 10px;
             background: rgba(0, 255, 255, 0.1);
-            border: 2px solid #00ffff;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            color: #00ffff;
+            cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+            font-size: 14px;
         }
 
-        .reel.spinning {
-            animation: spin 1s ease-in-out;
+        .bet-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
         }
 
-        @keyframes spin {
-            0% { transform: rotateY(0deg); }
-            50% { transform: rotateY(180deg); }
-            100% { transform: rotateY(360deg); }
-        }
-
-        .play-btn {
+        .spin-btn {
             width: 100%;
             padding: 15px;
             background: linear-gradient(45deg, #00ffff, #0088ff);
@@ -166,12 +226,12 @@
             z-index: 1;
         }
 
-        .play-btn:hover {
+        .spin-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
         }
 
-        .play-btn:disabled {
+        .spin-btn:disabled {
             background: #333;
             color: #666;
             cursor: not-allowed;
@@ -306,19 +366,135 @@
             font-size: 12px;
             color: #888;
         }
+
+        .achievements {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .achievement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .achievement.unlocked {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .achievement-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .achievement-text {
+            flex: 1;
+        }
+
+        .achievement-title {
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        .achievement-desc {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .quest-item {
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .quest-item h3 {
+            color: #8a2be2;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #8a2be2, #ba55d3);
+            transition: width 0.3s ease;
+        }
+
+        .claim-btn {
+            background: linear-gradient(45deg, #8a2be2, #ba55d3);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .claim-btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .last-results {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .result-item {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            border: 2px solid #00ffff;
+        }
+
+        .result-win {
+            background: linear-gradient(45deg, #00ff88, #00ffff);
+            color: #000;
+        }
+
+        .result-lose {
+            background: linear-gradient(45deg, #ff4444, #ff6666);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="title">🎰 NEON CASINO</div>
-            <div class="balance">💰 Баланс: <span id="balance">100</span> монет</div>
+            <div class="title">🎯 NEON ROULETTE</div>
+            <div class="balance">💰 Баланс: <span id="balance">500</span> монет</div>
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('game')">🎰 Игра</button>
+            <button class="tab active" onclick="switchTab('game')">🎯 Рулетка</button>
             <button class="tab" onclick="switchTab('shop')">🛒 Магазин</button>
             <button class="tab" onclick="switchTab('upgrades')">⚡ Улучшения</button>
+            <button class="tab" onclick="switchTab('achievements')">🏆 Достижения</button>
+            <button class="tab" onclick="switchTab('quests')">📋 Квесты</button>
         </div>
 
         <div id="game" class="game-section active">
@@ -337,38 +513,58 @@
                 </div>
             </div>
 
-            <div class="slot-machine">
-                <div class="reels">
-                    <div class="reel" id="reel1">🎰</div>
-                    <div class="reel" id="reel2">🎰</div>
-                    <div class="reel" id="reel3">🎰</div>
+            <div class="last-results">
+                <div class="result-item" id="result1">-</div>
+                <div class="result-item" id="result2">-</div>
+                <div class="result-item" id="result3">-</div>
+                <div class="result-item" id="result4">-</div>
+                <div class="result-item" id="result5">-</div>
+            </div>
+
+            <div class="roulette-container">
+                <div class="roulette-wheel" id="rouletteWheel">
+                    <div class="wheel-numbers" id="wheelNumbers"></div>
                 </div>
-                <button class="play-btn" id="playBtn" onclick="playGame()">
-                    ИГРАТЬ (10 монет)
-                </button>
+                
+                <div class="bet-section">
+                    <input type="number" class="bet-input" id="betAmount" placeholder="Ставка (мин. 10)" min="10" value="10">
+                    
+                    <div class="bet-buttons">
+                        <button class="bet-btn" onclick="setBet(10)">10</button>
+                        <button class="bet-btn" onclick="setBet(50)">50</button>
+                        <button class="bet-btn" onclick="setBet(100)">100</button>
+                        <button class="bet-btn" onclick="setBet(Math.floor(gameData.balance * 0.25))">25%</button>
+                        <button class="bet-btn" onclick="setBet(Math.floor(gameData.balance * 0.5))">50%</button>
+                        <button class="bet-btn" onclick="setBet(gameData.balance)">Все</button>
+                    </div>
+                    
+                    <button class="spin-btn" id="spinBtn" onclick="spinRoulette()">
+                        КРУТИТЬ РУЛЕТКУ
+                    </button>
+                </div>
             </div>
         </div>
 
         <div id="shop" class="game-section">
             <div class="shop-item">
                 <h3>💎 Стартовый бонус</h3>
-                <p>Получите 500 монет для успешного старта!</p>
-                <button class="buy-btn" onclick="buyItem('starter', 0)">ПОЛУЧИТЬ БЕСПЛАТНО</button>
+                <p>Получите 1000 монет для успешного старта!</p>
+                <button class="buy-btn" id="starterBtn" onclick="buyItem('starter', 0)">ПОЛУЧИТЬ БЕСПЛАТНО</button>
             </div>
             <div class="shop-item">
                 <h3>🎁 Ежедневный бонус</h3>
-                <p>Получайте 100 монет каждые 24 часа</p>
+                <p>Получайте 200 монет каждые 24 часа</p>
                 <button class="buy-btn" id="dailyBtn" onclick="claimDaily()">ПОЛУЧИТЬ</button>
             </div>
             <div class="shop-item">
                 <h3>💰 Малый пакет монет</h3>
-                <p>250 монет за просмотр рекламы</p>
-                <button class="buy-btn" onclick="buyItem('small', 0)">ПОСМОТРЕТЬ РЕКЛАМУ</button>
+                <p>Получите 500 монет мгновенно</p>
+                <button class="buy-btn" onclick="buyItem('small', 100)">КУПИТЬ (100 монет)</button>
             </div>
             <div class="shop-item">
-                <h3>💰 Большой пакет монет</h3>
-                <p>1000 монет</p>
-                <button class="buy-btn" onclick="buyItem('big', 50)">КУПИТЬ (50 монет)</button>
+                <h3>💎 Большой пакет монет</h3>
+                <p>Получите 2000 монет мгновенно</p>
+                <button class="buy-btn" onclick="buyItem('big', 300)">КУПИТЬ (300 монет)</button>
             </div>
         </div>
 
@@ -376,96 +572,200 @@
             <div class="upgrade-item">
                 <h3>🍀 Удача</h3>
                 <div class="level-info">Уровень: <span id="luckLevel">1</span>/10</div>
-                <p>Увеличивает шанс выигрыша на 5% за уровень</p>
+                <p>Увеличивает шанс выигрыша на 3% за уровень</p>
                 <button class="upgrade-btn" onclick="upgradeSkill('luck')">
-                    УЛУЧШИТЬ (<span id="luckCost">100</span> монет)
+                    УЛУЧШИТЬ (<span id="luckCost">200</span> монет)
                 </button>
             </div>
             <div class="upgrade-item">
                 <h3>💰 Жадность</h3>
                 <div class="level-info">Уровень: <span id="greedLevel">1</span>/10</div>
-                <p>Увеличивает выигрыш на 10% за уровень</p>
+                <p>Увеличивает выигрыш на 15% за уровень</p>
                 <button class="upgrade-btn" onclick="upgradeSkill('greed')">
-                    УЛУЧШИТЬ (<span id="greedCost">150</span> монет)
+                    УЛУЧШИТЬ (<span id="greedCost">300</span> монет)
                 </button>
             </div>
             <div class="upgrade-item">
                 <h3>⚡ Скорость</h3>
                 <div class="level-info">Уровень: <span id="speedLevel">1</span>/5</div>
-                <p>Уменьшает время анимации на 20% за уровень</p>
+                <p>Уменьшает время анимации на 25% за уровень</p>
                 <button class="upgrade-btn" onclick="upgradeSkill('speed')">
-                    УЛУЧШИТЬ (<span id="speedCost">200</span> монет)
+                    УЛУЧШИТЬ (<span id="speedCost">400</span> монет)
                 </button>
             </div>
+            <div class="upgrade-item">
+                <h3>🔥 Мультипликатор</h3>
+                <div class="level-info">Уровень: <span id="multiplierLevel">1</span>/5</div>
+                <p>Увеличивает максимальный выигрыш на 50% за уровень</p>
+                <button class="upgrade-btn" onclick="upgradeSkill('multiplier')">
+                    УЛУЧШИТЬ (<span id="multiplierCost">500</span> монет)
+                </button>
+            </div>
+        </div>
+
+        <div id="achievements" class="game-section">
+            <div class="achievements">
+                <h3 style="color: #00ffff; margin-bottom: 20px;">🏆 Достижения</h3>
+                <div id="achievementsList"></div>
+            </div>
+        </div>
+
+        <div id="quests" class="game-section">
+            <div id="questsList"></div>
         </div>
     </div>
 
     <script>
         let gameData = {
-            balance: 100,
+            balance: 500,
             gamesPlayed: 0,
             totalWon: 0,
+            totalLost: 0,
             wins: 0,
             luck: 1,
             greed: 1,
             speed: 1,
+            multiplier: 1,
             lastDaily: 0,
-            starterClaimed: false
+            starterClaimed: false,
+            lastResults: [],
+            achievements: {
+                firstWin: false,
+                bigWin: false,
+                hundredGames: false,
+                thousandCoins: false,
+                tenThousandCoins: false,
+                winStreak: false,
+                maxUpgrade: false
+            },
+            quests: {
+                playTenGames: { progress: 0, completed: false, claimed: false },
+                win1000: { progress: 0, completed: false, claimed: false },
+                upgradeAny: { progress: 0, completed: false, claimed: false },
+                dailyStreak: { progress: 0, completed: false, claimed: false }
+            },
+            maxWinStreak: 0,
+            currentWinStreak: 0
         };
 
-        const symbols = ['🎰', '💎', '🍒', '🍋', '🔔', '⭐', '7️⃣'];
+        const rouletteValues = [
+            { value: 50, weight: 5, color: '#00ff88' },
+            { value: 20, weight: 15, color: '#00ff88' },
+            { value: 10, weight: 25, color: '#00ff88' },
+            { value: 0, weight: 30, color: '#888888' },
+            { value: -20, weight: 15, color: '#ff4444' },
+            { value: -50, weight: 8, color: '#ff4444' },
+            { value: -100, weight: 2, color: '#ff0000' }
+        ];
+
+        const achievements = [
+            { id: 'firstWin', title: 'Первая победа', desc: 'Выиграйте свою первую игру', icon: '🎉', reward: 100 },
+            { id: 'bigWin', title: 'Крупный выигрыш', desc: 'Выиграйте более 200 монет за раз', icon: '💎', reward: 200 },
+            { id: 'hundredGames', title: 'Сотня игр', desc: 'Сыграйте 100 игр', icon: '🎯', reward: 500 },
+            { id: 'thousandCoins', title: 'Тысячник', desc: 'Накопите 1000 монет', icon: '💰', reward: 100 },
+            { id: 'tenThousandCoins', title: 'Миллионер', desc: 'Накопите 10000 монет', icon: '👑', reward: 1000 },
+            { id: 'winStreak', title: 'Серия побед', desc: 'Выиграйте 5 игр подряд', icon: '🔥', reward: 300 },
+            { id: 'maxUpgrade', title: 'Максимум', desc: 'Прокачайте любой навык до максимума', icon: '⭐', reward: 500 }
+        ];
+
+        const quests = [
+            { id: 'playTenGames', title: 'Активный игрок', desc: 'Сыграйте 10 игр', target: 10, reward: 200 },
+            { id: 'win1000', title: 'Коллекционер', desc: 'Выиграйте 1000 монет', target: 1000, reward: 300 },
+            { id: 'upgradeAny', title: 'Улучшатель', desc: 'Купите 5 улучшений', target: 5, reward: 250 },
+            { id: 'dailyStreak', title: 'Ежедневные бонусы', desc: 'Получите ежедневный бонус 3 раза', target: 3, reward: 400 }
+        ];
 
         // Инициализация Telegram WebApp
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-
-        // Получение данных пользователя
-        const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
-        const userId = tgUser?.id || 'demo_user';
-
-        async function loadGameData() {
-            try {
-                const response = await fetch(`/api/user/${userId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    gameData = { ...gameData, ...data };
-                }
-            } catch (error) {
-                console.log('Загружены локальные данные');
-            }
-            updateUI();
+        if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
         }
 
-        async function saveGameData() {
-            try {
-                await fetch('/api/user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, ...gameData })
-                });
-            } catch (error) {
-                console.log('Данные сохранены локально');
+        function initGame() {
+            createWheelNumbers();
+            loadGameData();
+            updateUI();
+            updateAchievements();
+            updateQuests();
+        }
+
+        function createWheelNumbers() {
+            const wheelNumbers = document.getElementById('wheelNumbers');
+            const values = ['+50', '+20', '+10', '0', '-20', '-50', '-100', '+20', '+10', '0'];
+            
+            values.forEach((value, index) => {
+                const numberEl = document.createElement('div');
+                numberEl.className = 'wheel-number';
+                numberEl.textContent = value;
+                
+                const angle = (index * 36) - 90;
+                const radius = 70;
+                const x = 50 + Math.cos(angle * Math.PI / 180) * radius;
+                const y = 50 + Math.sin(angle * Math.PI / 180) * radius;
+                
+                numberEl.style.left = x + '%';
+                numberEl.style.top = y + '%';
+                numberEl.style.transform = 'translate(-50%, -50%)';
+                
+                wheelNumbers.appendChild(numberEl);
+            });
+        }
+
+        function loadGameData() {
+            const saved = localStorage.getItem('casinoData');
+            if (saved) {
+                const parsedData = JSON.parse(saved);
+                gameData = { ...gameData, ...parsedData };
             }
+        }
+
+        function saveGameData() {
+            localStorage.setItem('casinoData', JSON.stringify(gameData));
         }
 
         function updateUI() {
             document.getElementById('balance').textContent = gameData.balance;
             document.getElementById('gamesPlayed').textContent = gameData.gamesPlayed;
             document.getElementById('totalWon').textContent = gameData.totalWon;
-            document.getElementById('winRate').textContent =
+            document.getElementById('winRate').textContent = 
                 gameData.gamesPlayed > 0 ? Math.round((gameData.wins / gameData.gamesPlayed) * 100) + '%' : '0%';
 
             document.getElementById('luckLevel').textContent = gameData.luck;
             document.getElementById('greedLevel').textContent = gameData.greed;
             document.getElementById('speedLevel').textContent = gameData.speed;
+            document.getElementById('multiplierLevel').textContent = gameData.multiplier;
 
-            document.getElementById('luckCost').textContent = gameData.luck * 100;
-            document.getElementById('greedCost').textContent = gameData.greed * 150;
-            document.getElementById('speedCost').textContent = gameData.speed * 200;
+            document.getElementById('luckCost').textContent = gameData.luck * 200;
+            document.getElementById('greedCost').textContent = gameData.greed * 300;
+            document.getElementById('speedCost').textContent = gameData.speed * 400;
+            document.getElementById('multiplierCost').textContent = gameData.multiplier * 500;
 
-            document.getElementById('playBtn').disabled = gameData.balance < 10;
+            const minBet = 10;
+            const betInput = document.getElementById('betAmount');
+            const spinBtn = document.getElementById('spinBtn');
+            
+            spinBtn.disabled = gameData.balance < minBet;
+            betInput.max = gameData.balance;
 
+            updateLastResults();
             updateDailyButton();
+            updateStarterButton();
+        }
+
+        function updateLastResults() {
+            for (let i = 1; i <= 5; i++) {
+                const resultEl = document.getElementById(`result${i}`);
+                const resultIndex = i - 1;
+                
+                if (gameData.lastResults[resultIndex]) {
+                    const result = gameData.lastResults[resultIndex];
+                    resultEl.textContent = result.value > 0 ? `+${result.value}` : result.value;
+                    resultEl.className = `result-item ${result.value >= 0 ? 'result-win' : 'result-lose'}`;
+                } else {
+                    resultEl.textContent = '-';
+                    resultEl.className = 'result-item';
+                }
+            }
         }
 
         function updateDailyButton() {
@@ -483,63 +783,121 @@
             }
         }
 
-        async function playGame() {
-            if (gameData.balance < 10) return;
+        function updateStarterButton() {
+            const starterBtn = document.getElementById('starterBtn');
+            if (gameData.starterClaimed) {
+                starterBtn.textContent = 'ПОЛУЧЕНО';
+                starterBtn.disabled = true;
+            }
+        }
 
-            gameData.balance -= 10;
+        function setBet(amount) {
+            const betInput = document.getElementById('betAmount');
+            betInput.value = Math.min(amount, gameData.balance);
+        }
+
+        function getWeightedRandomValue() {
+            const luckBonus = (gameData.luck - 1) * 3;
+            const totalWeight = rouletteValues.reduce((sum, item) => {
+                if (item.value > 0) {
+                    return sum + item.weight + (item.weight * luckBonus / 100);
+                }
+                return sum + item.weight;
+            }, 0);
+
+            let random = Math.random() * totalWeight;
+            
+            for (const item of rouletteValues) {
+                const adjustedWeight = item.value > 0 ? 
+                    item.weight + (item.weight * luckBonus / 100) : 
+                    item.weight;
+                
+                if (random <= adjustedWeight) {
+                    return item.value;
+                }
+                random -= adjustedWeight;
+            }
+            
+            return rouletteValues[rouletteValues.length - 1].value;
+        }
+
+        function spinRoulette() {
+            const betAmount = parseInt(document.getElementById('betAmount').value) || 10;
+            
+            if (betAmount < 10) {
+                showMessage('Минимальная ставка 10 монет!', 'lose');
+                return;
+            }
+            
+            if (betAmount > gameData.balance) {
+                showMessage('Недостаточно монет!', 'lose');
+                return;
+            }
+
+            gameData.balance -= betAmount;
             gameData.gamesPlayed++;
 
-            const playBtn = document.getElementById('playBtn');
-            playBtn.disabled = true;
+            const spinBtn = document.getElementById('spinBtn');
+            const wheel = document.getElementById('rouletteWheel');
+            
+            spinBtn.disabled = true;
 
-            // Анимация барабанов
-            const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
-            reels.forEach(reel => {
-                reel.classList.add('spinning');
-                reel.textContent = '🎰';
-            });
-
-            const animationTime = Math.max(500, 1500 - (gameData.speed - 1) * 200);
+            // Анимация вращения
+            const baseRotation = 360 * 3; // 3 полных оборота
+            const randomRotation = Math.random() * 360;
+            const totalRotation = baseRotation + randomRotation;
+            
+            const animationTime = Math.max(1000, 3000 - (gameData.speed - 1) * 500);
+            
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            wheel.style.transition = `transform ${animationTime}ms cubic-bezier(0.17, 0.67, 0.12, 0.99)`;
 
             setTimeout(() => {
-                const results = [];
-                reels.forEach((reel, index) => {
-                    const symbol = symbols[Math.floor(Math.random() * symbols.length)];
-                    results.push(symbol);
-                    reel.textContent = symbol;
-                    reel.classList.remove('spinning');
-                });
+                const resultValue = getWeightedRandomValue();
+                let finalAmount = 0;
 
-                // Логика выигрыша с учетом удачи
-                const luckBonus = (gameData.luck - 1) * 5;
-                const baseChance = 30;
-                const winChance = Math.min(85, baseChance + luckBonus);
-
-                let winAmount = 0;
-                const rand = Math.random() * 100;
-
-                if (results[0] === results[1] && results[1] === results[2]) {
-                    // Джекпот
-                    winAmount = Math.floor((200 + Math.random() * 300) * (1 + (gameData.greed - 1) * 0.1));
-                    showMessage(`🎉 ДЖЕКПОТ! +${winAmount} монет!`, 'win');
-                } else if (rand < winChance) {
-                    // Обычный выигрыш
-                    const prizes = [20, 50, 100];
-                    winAmount = Math.floor(prizes[Math.floor(Math.random() * prizes.length)] * (1 + (gameData.greed - 1) * 0.1));
-                    showMessage(`🎉 Выигрыш! +${winAmount} монет!`, 'win');
+                if (resultValue > 0) {
+                    // Выигрыш с учетом улучшений
+                    const greedMultiplier = 1 + (gameData.greed - 1) * 0.15;
+                    const maxMultiplier = 1 + (gameData.multiplier - 1) * 0.5;
+                    finalAmount = Math.floor(resultValue * greedMultiplier * maxMultiplier);
+                    
+                    gameData.balance += finalAmount;
+                    gameData.totalWon += finalAmount;
+                    gameData.wins++;
+                    gameData.currentWinStreak++;
+                    gameData.maxWinStreak = Math.max(gameData.maxWinStreak, gameData.currentWinStreak);
+                    
+                    showMessage(`🎉 Выигрыш! +${finalAmount} монет!`, 'win');
+                } else if (resultValue < 0) {
+                    // Дополнительный проигрыш
+                    const lossAmount = Math.abs(resultValue);
+                    const actualLoss = Math.min(lossAmount, gameData.balance);
+                    gameData.balance -= actualLoss;
+                    gameData.totalLost += actualLoss;
+                    gameData.currentWinStreak = 0;
+                    finalAmount = -actualLoss;
+                    
+                    showMessage(`💔 Проигрыш! -${actualLoss} монет!`, 'lose');
                 } else {
-                    showMessage('💔 Неудача! Попробуйте еще!', 'lose');
+                    // Ничья
+                    gameData.currentWinStreak = 0;
+                    showMessage('🤝 Ничья! Ставка не изменилась!', 'lose');
                 }
 
-                if (winAmount > 0) {
-                    gameData.balance += winAmount;
-                    gameData.totalWon += winAmount;
-                    gameData.wins++;
+                // Сохранение результата
+                gameData.lastResults.unshift({ value: finalAmount });
+                if (gameData.lastResults.length > 5) {
+                    gameData.lastResults.pop();
                 }
 
                 updateUI();
+                checkAchievements(finalAmount);
+                updateQuests();
                 saveGameData();
-                playBtn.disabled = gameData.balance < 10;
+                
+                spinBtn.disabled = false;
+                wheel.style.transition = 'transform 2s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
             }, animationTime);
         }
 
@@ -561,17 +919,16 @@
             switch(type) {
                 case 'starter':
                     if (!gameData.starterClaimed) {
-                        reward = 500;
+                        reward = 1000;
                         gameData.starterClaimed = true;
-                        event.target.textContent = 'ПОЛУЧЕНО';
-                        event.target.disabled = true;
                     }
                     break;
                 case 'small':
-                    reward = 250;
+                    reward = 500;
+                    gameData.balance -= cost;
                     break;
                 case 'big':
-                    reward = 1000;
+                    reward = 2000;
                     gameData.balance -= cost;
                     break;
             }
@@ -589,22 +946,26 @@
             const timeSinceDaily = now - gameData.lastDaily;
 
             if (timeSinceDaily >= 24 * 60 * 60 * 1000) {
-                gameData.balance += 100;
+                gameData.balance += 200;
                 gameData.lastDaily = now;
-                showMessage('🎁 Ежедневный бонус получен! +100 монет!', 'win');
+                gameData.quests.dailyStreak.progress++;
+                
+                showMessage('🎁 Ежедневный бонус получен! +200 монет!', 'win');
                 updateUI();
+                updateQuests();
                 saveGameData();
             }
         }
 
         function upgradeSkill(skill) {
             const costs = {
-                luck: gameData.luck * 100,
-                greed: gameData.greed * 150,
-                speed: gameData.speed * 200
+                luck: gameData.luck * 200,
+                greed: gameData.greed * 300,
+                speed: gameData.speed * 400,
+                multiplier: gameData.multiplier * 500
             };
 
-            const maxLevels = { luck: 10, greed: 10, speed: 5 };
+            const maxLevels = { luck: 10, greed: 10, speed: 5, multiplier: 5 };
 
             if (gameData[skill] >= maxLevels[skill]) {
                 showMessage('Максимальный уровень!', 'lose');
@@ -618,10 +979,153 @@
 
             gameData.balance -= costs[skill];
             gameData[skill]++;
+            gameData.quests.upgradeAny.progress++;
 
-            showMessage(`${skill === 'luck' ? '🍀' : skill === 'greed' ? '💰' : '⚡'} Улучшение куплено!`, 'win');
+            const skillIcons = { luck: '🍀', greed: '💰', speed: '⚡', multiplier: '🔥' };
+            showMessage(`${skillIcons[skill]} Улучшение куплено!`, 'win');
+            
             updateUI();
+            updateQuests();
+            checkAchievements();
             saveGameData();
+        }
+
+        function checkAchievements(winAmount = 0) {
+            let newAchievements = [];
+
+            // Первая победа
+            if (!gameData.achievements.firstWin && gameData.wins > 0) {
+                gameData.achievements.firstWin = true;
+                newAchievements.push('firstWin');
+            }
+
+            // Крупный выигрыш
+            if (!gameData.achievements.bigWin && winAmount > 200) {
+                gameData.achievements.bigWin = true;
+                newAchievements.push('bigWin');
+            }
+
+            // 100 игр
+            if (!gameData.achievements.hundredGames && gameData.gamesPlayed >= 100) {
+                gameData.achievements.hundredGames = true;
+                newAchievements.push('hundredGames');
+            }
+
+            // 1000 монет
+            if (!gameData.achievements.thousandCoins && gameData.balance >= 1000) {
+                gameData.achievements.thousandCoins = true;
+                newAchievements.push('thousandCoins');
+            }
+
+            // 10000 монет
+            if (!gameData.achievements.tenThousandCoins && gameData.balance >= 10000) {
+                gameData.achievements.tenThousandCoins = true;
+                newAchievements.push('tenThousandCoins');
+            }
+
+            // Серия побед
+            if (!gameData.achievements.winStreak && gameData.currentWinStreak >= 5) {
+                gameData.achievements.winStreak = true;
+                newAchievements.push('winStreak');
+            }
+
+            // Максимальное улучшение
+            if (!gameData.achievements.maxUpgrade && 
+                (gameData.luck >= 10 || gameData.greed >= 10 || gameData.speed >= 5 || gameData.multiplier >= 5)) {
+                gameData.achievements.maxUpgrade = true;
+                newAchievements.push('maxUpgrade');
+            }
+
+            // Награды за достижения
+            newAchievements.forEach(achievementId => {
+                const achievement = achievements.find(a => a.id === achievementId);
+                if (achievement) {
+                    gameData.balance += achievement.reward;
+                    showMessage(`🏆 Достижение разблокировано: ${achievement.title}! +${achievement.reward} монет`, 'win');
+                }
+            });
+
+            if (newAchievements.length > 0) {
+                updateAchievements();
+            }
+        }
+
+        function updateAchievements() {
+            const achievementsList = document.getElementById('achievementsList');
+            achievementsList.innerHTML = '';
+
+            achievements.forEach(achievement => {
+                const achievementEl = document.createElement('div');
+                achievementEl.className = `achievement ${gameData.achievements[achievement.id] ? 'unlocked' : ''}`;
+                
+                achievementEl.innerHTML = `
+                    <div class="achievement-icon">${achievement.icon}</div>
+                    <div class="achievement-text">
+                        <div class="achievement-title">${achievement.title}</div>
+                        <div class="achievement-desc">${achievement.desc}</div>
+                    </div>
+                `;
+                
+                achievementsList.appendChild(achievementEl);
+            });
+        }
+
+        function updateQuests() {
+            const questsList = document.getElementById('questsList');
+            questsList.innerHTML = '';
+
+            // Обновление прогресса квестов
+            gameData.quests.playTenGames.progress = Math.min(gameData.gamesPlayed, 10);
+            gameData.quests.win1000.progress = Math.min(gameData.totalWon, 1000);
+            
+            // Проверка завершения квестов
+            Object.keys(gameData.quests).forEach(questId => {
+                const quest = gameData.quests[questId];
+                const questData = quests.find(q => q.id === questId);
+                
+                if (!quest.completed && quest.progress >= questData.target) {
+                    quest.completed = true;
+                }
+            });
+
+            quests.forEach(questData => {
+                const quest = gameData.quests[questData.id];
+                const questEl = document.createElement('div');
+                questEl.className = 'quest-item';
+                
+                const progress = Math.min(quest.progress, questData.target);
+                const progressPercent = (progress / questData.target) * 100;
+                
+                questEl.innerHTML = `
+                    <h3>${questData.title}</h3>
+                    <p>${questData.desc}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                    <p>Прогресс: ${progress}/${questData.target}</p>
+                    <button class="claim-btn" 
+                            onclick="claimQuest('${questData.id}')" 
+                            ${!quest.completed || quest.claimed ? 'disabled' : ''}>
+                        ${quest.claimed ? 'ПОЛУЧЕНО' : quest.completed ? `ПОЛУЧИТЬ (${questData.reward} монет)` : 'НЕ ГОТОВО'}
+                    </button>
+                `;
+                
+                questsList.appendChild(questEl);
+            });
+        }
+
+        function claimQuest(questId) {
+            const quest = gameData.quests[questId];
+            const questData = quests.find(q => q.id === questId);
+            
+            if (quest.completed && !quest.claimed) {
+                quest.claimed = true;
+                gameData.balance += questData.reward;
+                showMessage(`📋 Квест выполнен: ${questData.title}! +${questData.reward} монет`, 'win');
+                updateUI();
+                updateQuests();
+                saveGameData();
+            }
         }
 
         function showMessage(text, type) {
@@ -635,9 +1139,8 @@
             }, 3000);
         }
 
-        // Инициализация
-        loadGameData();
-        setInterval(updateDailyButton, 60000);
+        // Инициализация игры
+        initGame();
     </script>
 </body>
 </html>
